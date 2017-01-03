@@ -7,7 +7,7 @@ What made Pebble’s classic Sliding Text watchface iconic is that words spell the
 
 Sliding Text++ supports the Pebble Classic, Pebble Steel, Pebble Time, Pebble Time Steel, Pebble Time Round, Pebble 2 and Pebble Time 2 (Aplite, Basalt, Chalk, Diorite and Emery hardware platforms).
 
-Please visit (tealdulcet.com)[http://www.tealdulcet.com/] to support this watchface and my other software development.
+Please visit [tealdulcet.com](http://www.tealdulcet.com/) to support this watchface and my other software development.
 
 ## Aplite
 ![](screenshots/11.png)
