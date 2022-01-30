@@ -1,7 +1,8 @@
 #include <pebble.h>
 #include "num2words.h"
 
-typedef enum {
+typedef enum
+{
 	MOVING_IN,
 	IN_FRAME,
 	PREPARE_TO_MOVE,
