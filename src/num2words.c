@@ -51,8 +51,8 @@ static const char *const TENS[] = {
 	"eighty",
 	"ninety"};
 
-static const char *STR_OH_TICK = "o'";
-static const char *STR_CLOCK = "clock";
+static const char *const STR_OH_TICK = "o'";
+static const char *const STR_CLOCK = "clock";
 
 void day_to_formal_words(int day, char *word)
 {
@@ -66,13 +66,13 @@ void day_to_formal_words(int day, char *word)
 	}
 	if (day > 10 && day < 20)
 	{
-		strcat(word, TEENS[(day - 10)]);
+		strcat(word, TEENS[day - 10]);
 		return;
 	}
 
-	strcat(word, TENS[day / 10 % 10]);
+	strcat(word, TENS[day / 10]);
 
-	int day_ones = day % 10;
+	const int day_ones = day % 10;
 	if (day_ones)
 	{
 		strcat(word, " ");
@@ -96,19 +96,19 @@ void minute_to_formal_words(int minutes, char *first_word, char *second_word)
 	}
 	if (minutes < 10)
 	{
-		strcat(first_word, ONES[minutes % 10]);
+		strcat(first_word, ONES[minutes]);
 		return;
 	}
 	if (minutes > 10 && minutes < 20)
 	{
-		strcat(first_word, TEENS_SPLIT[(minutes - 10) % 10][0]);
-		strcat(second_word, TEENS_SPLIT[(minutes - 10) % 10][1]);
+		strcat(first_word, TEENS_SPLIT[minutes - 10][0]);
+		strcat(second_word, TEENS_SPLIT[minutes - 10][1]);
 		return;
 	}
 
-	strcat(first_word, TENS[minutes / 10 % 10]);
+	strcat(first_word, TENS[minutes / 10]);
 
-	int minute_ones = minutes % 10;
+	const int minute_ones = minutes % 10;
 	if (minute_ones)
 	{
 		strcat(second_word, ONES[minute_ones]);
@@ -118,7 +118,7 @@ void minute_to_formal_words(int minutes, char *first_word, char *second_word)
 void hour_to_12h_word(int hours, char *word)
 {
 	// PBL_ASSERT(hours >= 0 && hours < 24, "Invalid number of hours");
-	hours = hours % 12;
+	hours %= 12;
 
 	if (hours == 0)
 	{
@@ -127,8 +127,8 @@ void hour_to_12h_word(int hours, char *word)
 
 	strcpy(word, "");
 
-	int tens_val = hours / 10 % 10;
-	int ones_val = hours % 10;
+	const int tens_val = hours / 10;
+	const int ones_val = hours % 10;
 
 	if (tens_val > 0)
 	{
@@ -154,7 +154,7 @@ void hour_to_24h_word(int hours, char *first_word, char *second_word)
 {
 	// PBL_ASSERT(hours >= 0 && hours < 24, "Invalid number of hours");
 
-	hours = hours % 24;
+	hours %= 24;
 
 	strcpy(first_word, "");
 	strcpy(second_word, "");
@@ -166,14 +166,14 @@ void hour_to_24h_word(int hours, char *first_word, char *second_word)
 	}
 	if (hours > 10 && hours < 20)
 	{
-		strcat(first_word, TEENS_SPLIT[(hours - 10)][0]);
-		strcat(second_word, TEENS_SPLIT[(hours - 10)][1]);
+		strcat(first_word, TEENS_SPLIT[hours - 10][0]);
+		strcat(second_word, TEENS_SPLIT[hours - 10][1]);
 		return;
 	}
 
-	strcat(first_word, TENS[hours / 10 % 10]);
+	strcat(first_word, TENS[hours / 10]);
 
-	int hour_ones = hours % 10;
+	const int hour_ones = hours % 10;
 	if (hour_ones)
 	{
 		strcat(second_word, ONES[hour_ones]);

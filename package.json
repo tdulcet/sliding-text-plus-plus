@@ -4,9 +4,6 @@
     "keywords": [],
     "name": "teal-s-text",
     "pebble": {
-        "capabilities": [
-            ""
-        ],
         "displayName": "Teal's Text Watchface",
         "enableMultiJS": false,
         "messageKeys": {
@@ -46,7 +43,9 @@
         "targetPlatforms": [
             "aplite",
             "basalt",
-            "chalk"
+            "chalk",
+            "diorite",
+            "emery"
         ],
         "uuid": "2dac3ec8-5b14-40c7-b2d1-24cf367abf14",
         "watchapp": {

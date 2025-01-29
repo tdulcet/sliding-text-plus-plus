@@ -60,10 +60,10 @@ typedef struct
 		uint8_t next_minutes;
 
 		/*struct SlidingTextRenderDemoTime {
-      int secs;
-      int mins;
-      int hour;
-    } demo_time;*/
+	  int secs;
+	  int mins;
+	  int hour;
+	} demo_time;*/
 
 	} render_state;
 
@@ -324,25 +324,28 @@ static void handle_init()
 
 	Layer *window_layer = window_get_root_layer(data->window);
 	GRect layer_frame = layer_get_frame(window_layer);
-	init_sliding_row(data, &data->rows[0], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(15, 9) : PBL_IF_ROUND_ELSE(30, 20), layer_frame.size.w, 42), data->arial_black_32, data->clock_24h_style ? 9 : 6);
+
+	const int halfheight = layer_frame.size.h / 2;
+
+	init_sliding_row(data, &data->rows[0], GRect(0, data->clock_24h_style ? halfheight - 75 : PBL_IF_ROUND_ELSE(halfheight - 60, halfheight - 64), layer_frame.size.w, 42), data->arial_black_32, data->clock_24h_style ? 9 : 6);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[0].label));
 
-	init_sliding_row(data, &data->rows[1], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(45, 39) : PBL_IF_ROUND_ELSE(30, 20), layer_frame.size.w, 42), data->arial_black_32, 6);
+	init_sliding_row(data, &data->rows[1], GRect(0, data->clock_24h_style ? halfheight - 45 : PBL_IF_ROUND_ELSE(halfheight - 60, halfheight - 64), layer_frame.size.w, 42), data->arial_black_32, 6);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[1].label));
 
-	init_sliding_row(data, &data->rows[2], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(75, 69) : PBL_IF_ROUND_ELSE(62, 52), layer_frame.size.w, 42), data->arial_32, 3);
+	init_sliding_row(data, &data->rows[2], GRect(0, data->clock_24h_style ? halfheight - 15 : PBL_IF_ROUND_ELSE(halfheight - 28, halfheight - 32), layer_frame.size.w, 42), data->arial_32, 3);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[2].label));
 
-	init_sliding_row(data, &data->rows[3], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(105, 99) : PBL_IF_ROUND_ELSE(94, 84), layer_frame.size.w, 42), data->arial_32, 0);
+	init_sliding_row(data, &data->rows[3], GRect(0, data->clock_24h_style ? halfheight + 15 : PBL_IF_ROUND_ELSE(halfheight + 4, halfheight), layer_frame.size.w, 42), data->arial_32, 0);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[3].label));
 
 	init_sliding_row(data, &data->rows[4], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(5, -1) : PBL_IF_ROUND_ELSE(10, 0), layer_frame.size.w, 22), data->arial_16, 0);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[4].label));
 
-	init_sliding_row(data, &data->rows[5], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(138, 133) : 128, layer_frame.size.w, 22), data->arial_16, 3);
+	init_sliding_row(data, &data->rows[5], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(layer_frame.size.h - 42, layer_frame.size.h - 35) : PBL_IF_ROUND_ELSE(layer_frame.size.h - 52, layer_frame.size.h - 40), layer_frame.size.w, 22), data->arial_16, 3);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[5].label));
 
-	init_sliding_row(data, &data->rows[6], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(153, 148) : 148, layer_frame.size.w, 22), data->arial_16, 0);
+	init_sliding_row(data, &data->rows[6], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(layer_frame.size.h - 27, layer_frame.size.h - 20) : PBL_IF_ROUND_ELSE(layer_frame.size.h - 32, layer_frame.size.h - 20), layer_frame.size.w, 22), data->arial_16, 0);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[6].label));
 
 	/*GFont norm14 = fonts_get_system_font(FONT_KEY_GOTHIC_14);
