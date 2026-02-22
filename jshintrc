@@ -6,7 +6,7 @@
  */
 {
   // Declares the existence of the globals available in PebbleKit JS.
-  "globals": {"Pebble": true, "Uint32Array": true, "Int32Array": true, "Uint16Array": true, "navigator": true, "Float64Array": true, "WebSocket": true, "Uint8Array": true, "console": true, "Int8Array": true, "XMLHttpRequest": true, "Float32Array": true, "localStorage": true, "Uint8ClampedArray": true, "setTimeout": true, "setInterval": true, "Int16Array": true},
+  "globals": {"console": true, "setTimeout": true, "setInterval": true, "Int8Array": true, "Uint8Array": true, "Uint8ClampedArray": true, "Int16Array": true, "Uint16Array": true, "Int32Array": true, "Uint32Array": true, "Float32Array": true, "Float64Array": true, "Pebble": true, "WebSocket": true, "XMLHttpRequest": true, "navigator": true, "localStorage": true, "require": true, "exports": true, "module": true},
 
   // Do not mess with standard JavaScript objects (Array, Date, etc)
   "freeze": true,
@@ -39,5 +39,8 @@
   "undef": "true",
 
   // Spot unused variables
-  "unused": "true"
+  "unused": "true",
+
+  // Enable ES6 syntax (const, let, arrow functions, etc)
+  "esversion": 6
 }

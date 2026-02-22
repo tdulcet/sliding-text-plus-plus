@@ -2,13 +2,11 @@
     "author": "Teal Dulcet",
     "dependencies": {},
     "keywords": [],
-    "name": "teal-s-text",
+    "name": "sliding-text",
     "pebble": {
-        "displayName": "Teal's Text Watchface",
-        "enableMultiJS": false,
-        "messageKeys": {
-            "dummy": 0
-        },
+        "displayName": "Teal's Sliding Text++",
+        "enableMultiJS": true,
+        "messageKeys": [],
         "projectType": "native",
         "resources": {
             "media": [
@@ -45,7 +43,9 @@
             "basalt",
             "chalk",
             "diorite",
-            "emery"
+            "emery",
+            "flint",
+            "gabbro"
         ],
         "uuid": "2dac3ec8-5b14-40c7-b2d1-24cf367abf14",
         "watchapp": {
