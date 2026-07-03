@@ -18,21 +18,72 @@
                     "type": "bitmap"
                 },
                 {
+                    "characterRegex": "[A-Za-z' -]",
                     "file": "fonts/arial.ttf",
                     "name": "ARIAL_32",
-                    "targetPlatforms": null,
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite",
+                        "flint"
+                    ],
                     "type": "font"
                 },
                 {
+                    "characterRegex": "[A-Za-z' -]",
                     "file": "fonts/arial.ttf",
                     "name": "ARIAL_16",
-                    "targetPlatforms": null,
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite",
+                        "flint"
+                    ],
                     "type": "font"
                 },
                 {
+                    "characterRegex": "[A-Za-z' -]",
+                    "file": "fonts/arial.ttf",
+                    "name": "ARIAL_42",
+                    "targetPlatforms": [
+                        "emery",
+                        "gabbro"
+                    ],
+                    "type": "font"
+                },
+                {
+                    "characterRegex": "[A-Za-z' -]",
+                    "file": "fonts/arial.ttf",
+                    "name": "ARIAL_20",
+                    "targetPlatforms": [
+                        "emery",
+                        "gabbro"
+                    ],
+                    "type": "font"
+                },
+                {
+                    "characterRegex": "[A-Za-z' -]",
                     "file": "fonts/ariblk.ttf",
                     "name": "ARIAL_BLACK_32",
-                    "targetPlatforms": null,
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite",
+                        "flint"
+                    ],
+                    "type": "font"
+                },
+                {
+                    "characterRegex": "[A-Za-z' -]",
+                    "file": "fonts/ariblk.ttf",
+                    "name": "ARIAL_BLACK_42",
+                    "targetPlatforms": [
+                        "emery",
+                        "gabbro"
+                    ],
                     "type": "font"
                 }
             ]
@@ -44,13 +95,13 @@
             "chalk",
             "diorite",
             "emery",
-            "flint",
-            "gabbro"
+            "gabbro",
+            "flint"
         ],
         "uuid": "2dac3ec8-5b14-40c7-b2d1-24cf367abf14",
         "watchapp": {
             "watchface": true
         }
     },
-    "version": "1.0.0"
+    "version": "1.1.0"
 }

@@ -36,9 +36,9 @@ typedef struct
 
 	bool clock_24h_style;
 
-	GFont arial_black_32;
-	GFont arial_32;
-	GFont arial_16;
+	GFont arial_black;
+	GFont arial;
+	GFont arial_small;
 
 	Window *window;
 	Animation *animation;
@@ -294,17 +294,12 @@ static void handle_deinit(void)
 
 static void handle_init()
 {
-	SlidingTextData *data = (SlidingTextData *)malloc(sizeof(SlidingTextData));
+	SlidingTextData *data = (SlidingTextData *)calloc(1, sizeof(SlidingTextData));
+	if (!data)
+	{
+		return;
+	}
 	s_data = data;
-
-	data->render_state.next_mdays = 0;
-	data->render_state.next_months = 0;
-	data->render_state.next_wdays = 0;
-	data->render_state.next_hours = 0;
-	data->render_state.next_minutes = 0;
-	/*data->render_state.demo_time.secs = 0;
-  data->render_state.demo_time.mins = 0;
-  data->render_state.demo_time.hour = 0;*/
 
 	data->last_hour = -1;
 	data->last_minute = -1;
@@ -318,34 +313,45 @@ static void handle_init()
 
 	window_set_background_color(data->window, GColorBlack);
 
-	data->arial_black_32 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_BLACK_32));
-	data->arial_32 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_32));
-	data->arial_16 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_16));
+	#if PBL_DISPLAY_HEIGHT >= 200
+	#define MAIN_FONT_SIZE 42
+	#define SMALL_FONT_SIZE 20
+	data->arial_black = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_BLACK_42));
+	data->arial = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_42));
+	data->arial_small = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_20));
+	#else
+	#define MAIN_FONT_SIZE 32
+	#define SMALL_FONT_SIZE 16
+	data->arial_black = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_BLACK_32));
+	data->arial = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_32));
+	data->arial_small = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_16));
+	#endif
 
 	Layer *window_layer = window_get_root_layer(data->window);
 	GRect layer_frame = layer_get_frame(window_layer);
 
-	const int halfheight = layer_frame.size.h / 2;
+	const int main_spacing = (data->clock_24h_style ? 30 : 32) * MAIN_FONT_SIZE / 32;
+	const int main_center = (layer_frame.size.h / 2) - (data->clock_24h_style ? 30 : PBL_IF_ROUND_ELSE(28, 32));
 
-	init_sliding_row(data, &data->rows[0], GRect(0, data->clock_24h_style ? halfheight - 75 : PBL_IF_ROUND_ELSE(halfheight - 60, halfheight - 64), layer_frame.size.w, 42), data->arial_black_32, data->clock_24h_style ? 9 : 6);
+	init_sliding_row(data, &data->rows[0], GRect(0, data->clock_24h_style ? main_center - main_spacing * 3 / 2 : main_center - main_spacing, layer_frame.size.w, 63), data->arial_black, data->clock_24h_style ? 9 : 6);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[0].label));
 
-	init_sliding_row(data, &data->rows[1], GRect(0, data->clock_24h_style ? halfheight - 45 : PBL_IF_ROUND_ELSE(halfheight - 60, halfheight - 64), layer_frame.size.w, 42), data->arial_black_32, 6);
+	init_sliding_row(data, &data->rows[1], GRect(0, data->clock_24h_style ? main_center - main_spacing / 2 : main_center - main_spacing, layer_frame.size.w, 63), data->arial_black, 6);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[1].label));
 
-	init_sliding_row(data, &data->rows[2], GRect(0, data->clock_24h_style ? halfheight - 15 : PBL_IF_ROUND_ELSE(halfheight - 28, halfheight - 32), layer_frame.size.w, 42), data->arial_32, 3);
+	init_sliding_row(data, &data->rows[2], GRect(0, data->clock_24h_style ? main_center + main_spacing / 2 : main_center, layer_frame.size.w, 63), data->arial, 3);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[2].label));
 
-	init_sliding_row(data, &data->rows[3], GRect(0, data->clock_24h_style ? halfheight + 15 : PBL_IF_ROUND_ELSE(halfheight + 4, halfheight), layer_frame.size.w, 42), data->arial_32, 0);
+	init_sliding_row(data, &data->rows[3], GRect(0, data->clock_24h_style ? main_center + main_spacing * 3 / 2 : main_center + main_spacing, layer_frame.size.w, 63), data->arial, 0);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[3].label));
 
-	init_sliding_row(data, &data->rows[4], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(5, -1) : PBL_IF_ROUND_ELSE(10, 0), layer_frame.size.w, 22), data->arial_16, 0);
+	init_sliding_row(data, &data->rows[4], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(5 * SMALL_FONT_SIZE / 16, -(1 * SMALL_FONT_SIZE / 16)) : PBL_IF_ROUND_ELSE(10 * SMALL_FONT_SIZE / 16, 0), layer_frame.size.w, 33), data->arial_small, 0);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[4].label));
 
-	init_sliding_row(data, &data->rows[5], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(layer_frame.size.h - 42, layer_frame.size.h - 35) : PBL_IF_ROUND_ELSE(layer_frame.size.h - 52, layer_frame.size.h - 40), layer_frame.size.w, 22), data->arial_16, 3);
+	init_sliding_row(data, &data->rows[5], GRect(0, layer_frame.size.h - ((data->clock_24h_style ? PBL_IF_ROUND_ELSE(42, 35) : PBL_IF_ROUND_ELSE(52, 40)) * SMALL_FONT_SIZE / 16), layer_frame.size.w, 33), data->arial_small, 3);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[5].label));
 
-	init_sliding_row(data, &data->rows[6], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(layer_frame.size.h - 27, layer_frame.size.h - 20) : PBL_IF_ROUND_ELSE(layer_frame.size.h - 32, layer_frame.size.h - 20), layer_frame.size.w, 22), data->arial_16, 0);
+	init_sliding_row(data, &data->rows[6], GRect(0, layer_frame.size.h - ((data->clock_24h_style ? PBL_IF_ROUND_ELSE(27, 20) : PBL_IF_ROUND_ELSE(32, 20)) * SMALL_FONT_SIZE / 16), layer_frame.size.w, 33), data->arial_small, 0);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[6].label));
 
 	/*GFont norm14 = fonts_get_system_font(FONT_KEY_GOTHIC_14);
