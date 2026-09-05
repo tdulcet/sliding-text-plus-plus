@@ -71,6 +71,14 @@ typedef struct
 
 SlidingTextData *s_data;
 
+#if PBL_DISPLAY_HEIGHT >= 200
+#define LARGE_FONT_SIZE 42
+#define SMALL_FONT_SIZE 20
+#else
+#define LARGE_FONT_SIZE 32
+#define SMALL_FONT_SIZE 16
+#endif
+
 static void init_sliding_row(SlidingTextData *data, SlidingRow *row, GRect pos, GFont font,
 							 int delay)
 {
@@ -78,6 +86,7 @@ static void init_sliding_row(SlidingTextData *data, SlidingRow *row, GRect pos, 
 	text_layer_set_text_alignment(row->label, PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft));
 	text_layer_set_background_color(row->label, GColorClear);
 	text_layer_set_text_color(row->label, GColorWhite);
+
 	if (font)
 	{
 		text_layer_set_font(row->label, font);
@@ -91,8 +100,8 @@ static void init_sliding_row(SlidingTextData *data, SlidingRow *row, GRect pos, 
 	row->state = IN_FRAME;
 	row->next_string = NULL;
 
-	row->left_pos = -pos.size.w;
-	row->right_pos = pos.size.w;
+	row->left_pos = pos.origin.x - pos.size.w;
+	row->right_pos = pos.origin.x + pos.size.w;
 	row->still_pos = pos.origin.x;
 
 	row->movement_delay = delay;
@@ -100,6 +109,68 @@ static void init_sliding_row(SlidingTextData *data, SlidingRow *row, GRect pos, 
 
 	/*data->last_hour = -1;
   data->last_minute = -1;*/
+}
+
+static void get_sliding_row_frames(SlidingTextData *data, GRect full_bounds, GRect bounds, GRect frames[7])
+{
+	const int main_spacing = (((data->clock_24h_style ? 30 : 32) * LARGE_FONT_SIZE / 32) * bounds.size.h) / full_bounds.size.h;
+	const int main_center = bounds.origin.y + (bounds.size.h / 2) - (((data->clock_24h_style ? PBL_IF_ROUND_ELSE(15, 13) : PBL_IF_ROUND_ELSE(34, 32)) * bounds.size.h) / full_bounds.size.h);
+
+	frames[0] = GRect(bounds.origin.x, data->clock_24h_style ? main_center - main_spacing * 2 : main_center - main_spacing - 2, bounds.size.w, LARGE_FONT_SIZE + 10);
+
+	frames[1] = GRect(bounds.origin.x, main_center - main_spacing - 2, bounds.size.w, LARGE_FONT_SIZE + 10);
+
+	frames[2] = GRect(bounds.origin.x, main_center, bounds.size.w, LARGE_FONT_SIZE + 10);
+
+	frames[3] = GRect(bounds.origin.x, main_center + main_spacing, bounds.size.w, LARGE_FONT_SIZE + 10);
+
+	frames[4] = GRect(bounds.origin.x, bounds.origin.y + ((((data->clock_24h_style ? PBL_IF_ROUND_ELSE(5, 0) : PBL_IF_ROUND_ELSE(10, 0)) * SMALL_FONT_SIZE / 16) * bounds.size.h) / full_bounds.size.h), bounds.size.w, SMALL_FONT_SIZE + 6);
+
+	frames[5] = GRect(bounds.origin.x, bounds.origin.y + bounds.size.h - ((((data->clock_24h_style ? PBL_IF_ROUND_ELSE(42, 35) : PBL_IF_ROUND_ELSE(52, 40)) * SMALL_FONT_SIZE / 16) * bounds.size.h) / full_bounds.size.h), bounds.size.w, SMALL_FONT_SIZE + 6);
+
+	frames[6] = GRect(bounds.origin.x, bounds.origin.y + bounds.size.h - ((((data->clock_24h_style ? PBL_IF_ROUND_ELSE(27, 20) : PBL_IF_ROUND_ELSE(32, 20)) * SMALL_FONT_SIZE / 16) * bounds.size.h) / full_bounds.size.h), bounds.size.w, SMALL_FONT_SIZE + 6);
+}
+
+static void set_sliding_row_frame(SlidingRow *row, GRect pos)
+{
+	Layer *layer = text_layer_get_layer(row->label);
+	GRect frame = layer_get_frame(layer);
+
+	row->left_pos = pos.origin.x - pos.size.w;
+	row->right_pos = pos.origin.x + pos.size.w;
+	row->still_pos = pos.origin.x;
+
+	if (row->state == IN_FRAME || row->state == PREPARE_TO_MOVE)
+	{
+		frame.origin.x = row->still_pos;
+	}
+
+	frame.origin.y = pos.origin.y;
+	frame.size.w = pos.size.w;
+	frame.size.h = pos.size.h;
+
+	layer_set_frame(layer, frame);
+}
+
+static void apply_sliding_row_layout(void)
+{
+	SlidingTextData *data = s_data;
+	Layer *window_layer = window_get_root_layer(data->window);
+	GRect full_bounds = layer_get_bounds(window_layer);
+	GRect bounds = layer_get_unobstructed_bounds(window_layer);
+
+	GRect frames[7];
+	get_sliding_row_frames(data, full_bounds, bounds, frames);
+
+	for (size_t i = 0; i < ARRAY_LENGTH(data->rows); ++i)
+	{
+		set_sliding_row_frame(&data->rows[i], frames[i]);
+	}
+}
+
+static void unobstructed_area_change(AnimationProgress progress, void *context)
+{
+	apply_sliding_row_layout();
 }
 
 static void slide_in_text(SlidingTextData *data, SlidingRow *row, char *new_text)
@@ -115,9 +186,10 @@ static void slide_in_text(SlidingTextData *data, SlidingRow *row, char *new_text
 	else
 	{
 		text_layer_set_text(row->label, new_text);
-		GRect frame = layer_get_frame(text_layer_get_layer(row->label));
+		Layer *layer = text_layer_get_layer(row->label);
+		GRect frame = layer_get_frame(layer);
 		frame.origin.x = row->right_pos;
-		layer_set_frame(text_layer_get_layer(row->label), frame);
+		layer_set_frame(layer, frame);
 		row->state = MOVING_IN;
 	}
 }
@@ -205,7 +277,7 @@ static void animation_update(struct Animation *animation, const AnimationProgres
 			text_layer_set_text(data->rows[2].label, rs->first_minutes[rs->next_minutes]);
 		}
 		slide_in_text(data, &data->rows[3], rs->second_minutes[rs->next_minutes]);
-		rs->next_minutes = rs->next_minutes ? 0 : 1;
+		rs->next_minutes = !rs->next_minutes;
 		data->last_minute = t.tm_min;
 	}
 
@@ -230,7 +302,7 @@ static void animation_update(struct Animation *animation, const AnimationProgres
 			hour_to_12h_word(t.tm_hour, rs->first_hours[rs->next_hours]);
 			slide_in_text(data, &data->rows[0], rs->first_hours[rs->next_hours]);
 		}
-		rs->next_hours = rs->next_hours ? 0 : 1;
+		rs->next_hours = !rs->next_hours;
 		data->last_hour = t.tm_hour;
 	}
 
@@ -238,7 +310,7 @@ static void animation_update(struct Animation *animation, const AnimationProgres
 	{
 		strftime(rs->wdays[rs->next_wdays], sizeof(rs->wdays[rs->next_wdays]), "%A", &t);
 		slide_in_text(data, &data->rows[4], rs->wdays[rs->next_wdays]);
-		rs->next_wdays = rs->next_wdays ? 0 : 1;
+		rs->next_wdays = !rs->next_wdays;
 		data->last_wday = t.tm_wday;
 	}
 
@@ -246,7 +318,7 @@ static void animation_update(struct Animation *animation, const AnimationProgres
 	{
 		strftime(rs->months[rs->next_months], sizeof(rs->months[rs->next_months]), "%B", &t);
 		slide_in_text(data, &data->rows[5], rs->months[rs->next_months]);
-		rs->next_months = rs->next_months ? 0 : 1;
+		rs->next_months = !rs->next_months;
 		data->last_month = t.tm_mon;
 	}
 
@@ -254,7 +326,7 @@ static void animation_update(struct Animation *animation, const AnimationProgres
 	{
 		day_to_formal_words(t.tm_mday, rs->mdays[rs->next_mdays]);
 		slide_in_text(data, &data->rows[6], rs->mdays[rs->next_mdays]);
-		rs->next_mdays = rs->next_mdays ? 0 : 1;
+		rs->next_mdays = !rs->next_mdays;
 		data->last_mday = t.tm_mday;
 	}
 
@@ -288,12 +360,49 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed)
 
 static void handle_deinit(void)
 {
+	if (!s_data)
+	{
+		return;
+	}
+
 	tick_timer_service_unsubscribe();
+	unobstructed_area_service_unsubscribe();
+
+	for (size_t i = 0; i < ARRAY_LENGTH(s_data->rows); ++i)
+	{
+		if (s_data->rows[i].label)
+		{
+			text_layer_destroy(s_data->rows[i].label);
+			s_data->rows[i].label = NULL;
+		}
+	}
+
+	if (s_data->arial_black)
+	{
+		fonts_unload_custom_font(s_data->arial_black);
+	}
+	if (s_data->arial)
+	{
+		fonts_unload_custom_font(s_data->arial);
+	}
+	if (s_data->arial_small)
+	{
+		fonts_unload_custom_font(s_data->arial_small);
+	}
+
+	if (s_data->window)
+	{
+		window_destroy(s_data->window);
+	}
+
 	free(s_data);
+	s_data = NULL;
 }
 
 static void handle_init()
 {
+	// setlocale(LC_ALL, "");
+
 	SlidingTextData *data = (SlidingTextData *)calloc(1, sizeof(SlidingTextData));
 	if (!data)
 	{
@@ -313,46 +422,48 @@ static void handle_init()
 
 	window_set_background_color(data->window, GColorBlack);
 
-	#if PBL_DISPLAY_HEIGHT >= 200
-	#define MAIN_FONT_SIZE 42
-	#define SMALL_FONT_SIZE 20
+#if PBL_DISPLAY_HEIGHT >= 200
 	data->arial_black = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_BLACK_42));
 	data->arial = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_42));
 	data->arial_small = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_20));
-	#else
-	#define MAIN_FONT_SIZE 32
-	#define SMALL_FONT_SIZE 16
+#else
 	data->arial_black = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_BLACK_32));
 	data->arial = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_32));
 	data->arial_small = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_ARIAL_16));
-	#endif
+#endif
 
 	Layer *window_layer = window_get_root_layer(data->window);
-	GRect layer_frame = layer_get_frame(window_layer);
+	GRect full_bounds = layer_get_bounds(window_layer);
+	GRect bounds = layer_get_unobstructed_bounds(window_layer);
 
-	const int main_spacing = (data->clock_24h_style ? 30 : 32) * MAIN_FONT_SIZE / 32;
-	const int main_center = (layer_frame.size.h / 2) - (data->clock_24h_style ? 30 : PBL_IF_ROUND_ELSE(28, 32));
+	GRect row_frames[7];
+	get_sliding_row_frames(data, full_bounds, bounds, row_frames);
 
-	init_sliding_row(data, &data->rows[0], GRect(0, data->clock_24h_style ? main_center - main_spacing * 3 / 2 : main_center - main_spacing, layer_frame.size.w, 63), data->arial_black, data->clock_24h_style ? 9 : 6);
+	init_sliding_row(data, &data->rows[0], row_frames[0], data->arial_black, data->clock_24h_style ? 9 : 6);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[0].label));
 
-	init_sliding_row(data, &data->rows[1], GRect(0, data->clock_24h_style ? main_center - main_spacing / 2 : main_center - main_spacing, layer_frame.size.w, 63), data->arial_black, 6);
+	init_sliding_row(data, &data->rows[1], row_frames[1], data->arial_black, 6);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[1].label));
 
-	init_sliding_row(data, &data->rows[2], GRect(0, data->clock_24h_style ? main_center + main_spacing / 2 : main_center, layer_frame.size.w, 63), data->arial, 3);
+	init_sliding_row(data, &data->rows[2], row_frames[2], data->arial, 3);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[2].label));
 
-	init_sliding_row(data, &data->rows[3], GRect(0, data->clock_24h_style ? main_center + main_spacing * 3 / 2 : main_center + main_spacing, layer_frame.size.w, 63), data->arial, 0);
+	init_sliding_row(data, &data->rows[3], row_frames[3], data->arial, 0);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[3].label));
 
-	init_sliding_row(data, &data->rows[4], GRect(0, data->clock_24h_style ? PBL_IF_ROUND_ELSE(5 * SMALL_FONT_SIZE / 16, -(1 * SMALL_FONT_SIZE / 16)) : PBL_IF_ROUND_ELSE(10 * SMALL_FONT_SIZE / 16, 0), layer_frame.size.w, 33), data->arial_small, 0);
+	init_sliding_row(data, &data->rows[4], row_frames[4], data->arial_small, 0);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[4].label));
 
-	init_sliding_row(data, &data->rows[5], GRect(0, layer_frame.size.h - ((data->clock_24h_style ? PBL_IF_ROUND_ELSE(42, 35) : PBL_IF_ROUND_ELSE(52, 40)) * SMALL_FONT_SIZE / 16), layer_frame.size.w, 33), data->arial_small, 3);
+	init_sliding_row(data, &data->rows[5], row_frames[5], data->arial_small, 3);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[5].label));
 
-	init_sliding_row(data, &data->rows[6], GRect(0, layer_frame.size.h - ((data->clock_24h_style ? PBL_IF_ROUND_ELSE(27, 20) : PBL_IF_ROUND_ELSE(32, 20)) * SMALL_FONT_SIZE / 16), layer_frame.size.w, 33), data->arial_small, 0);
+	init_sliding_row(data, &data->rows[6], row_frames[6], data->arial_small, 0);
 	layer_add_child(window_layer, text_layer_get_layer(data->rows[6].label));
+
+	UnobstructedAreaHandlers unobstructed_handlers = {
+		.change = unobstructed_area_change
+	};
+	unobstructed_area_service_subscribe(unobstructed_handlers, NULL);
 
 	/*GFont norm14 = fonts_get_system_font(FONT_KEY_GOTHIC_14);
 

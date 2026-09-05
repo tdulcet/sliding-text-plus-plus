@@ -13,7 +13,8 @@ static const char *const ONES[] = {
 	"six",
 	"seven",
 	"eight",
-	"nine"};
+	"nine"
+};
 
 static const char *const TEENS[] = {
 	"",
@@ -25,7 +26,8 @@ static const char *const TEENS[] = {
 	"sixteen",
 	"seventeen",
 	"eighteen",
-	"nineteen"};
+	"nineteen"
+};
 
 static const char *const TEENS_SPLIT[][2] = {
 	{"", ""},
@@ -37,7 +39,8 @@ static const char *const TEENS_SPLIT[][2] = {
 	{"sixteen", ""},
 	{"seven", "teen"},
 	{"eight", "teen"},
-	{"nine", "teen"}};
+	{"nine", "teen"}
+};
 
 static const char *const TENS[] = {
 	"",
@@ -49,15 +52,12 @@ static const char *const TENS[] = {
 	"sixty",
 	"seventy",
 	"eighty",
-	"ninety"};
-
-static const char *const STR_OH_TICK = "o'";
-static const char *const STR_CLOCK = "clock";
+	"ninety"
+};
 
 void day_to_formal_words(int day, char *word)
 {
-
-	strcpy(word, "");
+	word[0] = '\0';
 
 	if (day < 10)
 	{
@@ -84,14 +84,12 @@ void day_to_formal_words(int day, char *word)
 void minute_to_formal_words(int minutes, char *first_word, char *second_word)
 {
 	// PBL_ASSERT(minutes >= 0 && minutes < 60, "Invalid number of minutes");
-
-	strcpy(first_word, "");
-	strcpy(second_word, "");
+	first_word[0] = '\0';
+	second_word[0] = '\0';
 
 	if (minutes == 0)
 	{
-		strcat(first_word, STR_OH_TICK);
-		strcat(first_word, STR_CLOCK);
+		strcat(first_word, "o'clock");
 		return;
 	}
 	if (minutes < 10)
@@ -125,7 +123,7 @@ void hour_to_12h_word(int hours, char *word)
 		hours = 12;
 	}
 
-	strcpy(word, "");
+	word[0] = '\0';
 
 	const int tens_val = hours / 10;
 	const int ones_val = hours % 10;
@@ -153,11 +151,10 @@ void hour_to_12h_word(int hours, char *word)
 void hour_to_24h_word(int hours, char *first_word, char *second_word)
 {
 	// PBL_ASSERT(hours >= 0 && hours < 24, "Invalid number of hours");
+	// hours %= 24;
 
-	hours %= 24;
-
-	strcpy(first_word, "");
-	strcpy(second_word, "");
+	first_word[0] = '\0';
+	second_word[0] = '\0';
 
 	if (hours < 10)
 	{
