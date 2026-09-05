@@ -7,26 +7,36 @@ What made [Pebble’s classic Sliding Text](https://github.com/pebble-examples/s
 
 ⌚ Sliding Text++ supports the Pebble Classic, Pebble Steel, Pebble Time, Pebble Time Steel, Pebble Time Round, Pebble 2, Pebble Time 2, Pebble 2 Duo and Pebble Round 2 (Aplite, Basalt, Chalk, Diorite, Emery, Flint and Gabbro hardware platforms).
 
-❤️ Please visit [tealdulcet.com](https://www.tealdulcet.com/) to support this watchface and my other software development.
+❤️ Please visit [tealdulcet.com](https://tealdulcet.com/) to support this watchface and my other open source software development.
 
 ⬇️ Download from the [Rebble app store](https://apps.rebble.io/en_US/application/58636289e09e636615000110) or the [rePebble app store](https://apps.repebble.com/en_US/application/58636289e09e636615000110).
 
-## Aplite
+## Screenshots
+
+### Aplite
 ![](screenshots/11.png)
 ![](screenshots/12.png)
 
-## Basalt
+### Basalt
 ![](screenshots/21.png)
 ![](screenshots/22.png)
 
-## Chalk
+### Chalk
 ![](screenshots/31.png)
 ![](screenshots/32.png)
 
-## Diorite
+### Diorite
 ![](screenshots/41.png)
 ![](screenshots/42.png)
 
-## Emery
+### Emery
 ![](screenshots/51.png)
 ![](screenshots/52.png)
+
+### Flint
+![](screenshots/61.png)
+![](screenshots/62.png)
+
+### Gabbro
+![](screenshots/71.png)
+![](screenshots/72.png)
