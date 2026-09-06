@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/tdulcet/sliding-text-plus-plus/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/tdulcet/sliding-text-plus-plus/actions/workflows/ci.yml)
+
 # Sliding Text++
 Sliding Text++ Watchface for Pebble
 
@@ -10,6 +12,8 @@ What made [Pebble’s classic Sliding Text](https://github.com/pebble-examples/s
 ❤️ Please visit [tealdulcet.com](https://tealdulcet.com/) to support this watchface and my other open source software development.
 
 ⬇️ Download from the [Rebble app store](https://apps.rebble.io/en_US/application/58636289e09e636615000110) or the [rePebble app store](https://apps.repebble.com/en_US/application/58636289e09e636615000110).
+
+Also see my [Sliding Weather](https://github.com/tdulcet/sliding-weather) watchface.
 
 ## Screenshots
 

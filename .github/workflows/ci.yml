@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  Pebble:
+    name: Pebble
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: Before install
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y libsdl2-2.0-0 libglib2.0-0 libpixman-1-0 zlib1g libsndio7.0
+    - name: Install
+      run: |
+        # python3 -m pip install --upgrade pip
+        python3 -m pip install pebble-tool "pyOpenSSL>=26.4.0"
+        pebble sdk install latest
+    - name: Script
+      run: |
+        pebble build
+    - uses: actions/upload-artifact@v7
+      with:
+        name: Sliding Text
+        path: |
+          build/*.pbw
